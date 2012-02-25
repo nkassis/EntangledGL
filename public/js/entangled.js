@@ -1,7 +1,9 @@
 var Entangled = (function(entangled){
 		   var canvas
-		   ,   gl
-		   , objects = [];
+		     , gl
+		     , objects = []
+		     , socket
+		     , players  = [];
 		   
 		   entangled.init = function() {
 		     canvas = document.getElementById("entangled-viewport");
@@ -17,10 +19,20 @@ var Entangled = (function(entangled){
 		     }
 		     
 		     initViewport();
-		     startRenderLoop();
+		     initSocket();
+		     //startRenderLoop();
 		   };
 		   
+		   function initSocket() {
+		     var socket =  io.connect('http://localhost');
+		     socket.emit('playerCreate', "abc");
+		     socket.on('newPlayer',function(data){
+				 console.log(data.playerID + " " + data.playerNick + "has just log in");
+				 players.push(data);
+			       });
+		   };
 
+		   
 		   function initViewport(){
 		     gl.clearColor(0.0,0.0,0.0,0.0);
 		   }

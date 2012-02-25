@@ -4,9 +4,12 @@
  */
 
 var express = require('express')
-  , routes = require('./routes');
+  , routes  = require('./routes')
+  , sockio      = require('socket.io');
 
-var app = module.exports = express.createServer();
+var app = module.exports = express.createServer()
+  , io = sockio.listen(app);
+
 
 // Configuration
 
@@ -32,4 +35,51 @@ app.configure('production', function(){
 app.get('/', routes.index);
 
 app.listen(5001);
+
+
+//Generates of unique player id's (just a sequence of number but whatever)
+var genPlayerID = (function(){
+		     var last = 0;
+		     return function() {
+		       last += 1;
+		       return last;
+		     };
+		     
+}());
+console.log(io);
+io.sockets.on('connection', function (socket) {
+
+  //On player create set playerID and Nick		
+  socket.on('playerCreate', function(name){
+	      console.log(name + " has just connected");
+	      var playerID = genPlayerID(); //get unique player ID
+	      socket.set('playerID', playerID , function(){
+	        socket.set('playerNick', name, function(){
+	          //Tell everyone who the new guy is
+	          socket.broadcast.emit('newPlayer', {playerID: playerID
+						      , playerNick: name});
+				      });
+			   
+			 });
+	    });
+
+  //broadcast new transformation matrix for player
+  socket.on('playerMove', function (data) {
+    console.log(data);
+    socket.get('playerID',function(err,playerID){
+      socket.broadcast.emit('playerMove', {data: data
+					   ,playerID: playerID});
+	       });
+  });
+
+  //Broadcast chat events
+  socket.on('playerChat', function (msg) {
+    console.log(msg);
+    socket.get('playerID',function(err,playerID){
+      socket.broadcast.emit('playerMove', {msg: msg
+					   ,playerID: playerID});
+	       });
+  });
+});
+
 console.log("Express server listening on port %d in %s mode", app.address().port, app.settings.env);
