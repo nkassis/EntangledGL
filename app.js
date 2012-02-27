@@ -44,36 +44,36 @@ var genPlayerID = (function(){
     last += 1;
     return last;
   };
-  
+
 }());
 
 
 var players = {};
 io.sockets.on('connection', function (socket) {
-  //On player create set playerID and Nick		
+  //On player create set playerID and Nick
   socket.on('playerCreate', function(name){
     console.log(name + " has just connected");
     var playerID = genPlayerID(); //get unique player ID
-    
-    //set the new players information on the socket and send info 
+
+    //set the new players information on the socket and send info
     //to current clients
     socket.set('playerID', playerID , function(){
       socket.set('playerNick', name, function(){
-	
+
 	var player ={playerID: playerID
 		     , playerNick: name};
-	
+
 	//tell the new guy who everyone is
 	socket.emit("playerList", players);
-        
-	players[playerId] = player;
-	
+
+	players[playerID] = player;
+
 	//Tell everyone who the new guy is
 	socket.broadcast.emit('newPlayer', player);
-      });		   
+      });
     });
   });
-  
+
   //broadcast new transformation matrix for player
   socket.on('playerMove', function (data) {
     console.log(data);
@@ -82,7 +82,7 @@ io.sockets.on('connection', function (socket) {
 					   ,playerID: playerID});
     });
   });
-  
+
   //Broadcast chat events
   socket.on('playerChat', function (msg) {
     console.log(msg);
