@@ -46,7 +46,7 @@ var genPlayerID = (function(){
   };
   
 }());
-console.log(io);
+
 
 var players = {};
 io.sockets.on('connection', function (socket) {
