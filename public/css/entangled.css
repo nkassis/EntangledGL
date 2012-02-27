@@ -6,17 +6,18 @@ body {
 a {
   color: #00B7FF;
 }
-
-entangled-viewport {
-    position: absolute;
-    top:      0px;
+#entangled-viewport {
+    position: relative;
     left:     0px;
+    top:      0px;
+    width:  700px;
+    height: 500px;
 }
 
-entangled-chat {
-    position: absolute
+#entangled-chat {
+    position: relative;
+    left: 701px;
+    top: 0px;
     width: 200px;
     height: 500px;
-    top: 0px;
-    right: 0px;
 }

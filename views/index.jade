@@ -1,5 +1,7 @@
-h1= title
-p Welcome to #{title}
-canvas(id='entangled-viewport', width=500, height=500);
+canvas(id='entangled-viewport', width=700, height=500)
+div(id='entangled-chat')
 script(src='/socket.io/socket.io.js')
+script(src='/js/libs/webgl-utils.js')
+script(src='/js/libs/gl-matrix-min.js')
 script(src='/js/entangled.js')
+script(src='/js/rendering.js')

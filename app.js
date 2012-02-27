@@ -5,7 +5,8 @@
 
 var express = require('express')
   , routes  = require('./routes')
-  , sockio  = require('socket.io');
+  , sockio  = require('socket.io')
+  , repl    = require('repl');
 
 var app = module.exports = express.createServer()
   , io = sockio.listen(app);
@@ -48,7 +49,13 @@ var genPlayerID = (function(){
 }());
 
 
+//Command line server control
+var servercli = repl.start('entangled>');
+
 var players = {};
+servercli.context.getPlayerList = function() {
+  return players;
+};
 io.sockets.on('connection', function (socket) {
   //On player create set playerID and Nick
   socket.on('playerCreate', function(name){
@@ -83,6 +90,12 @@ io.sockets.on('connection', function (socket) {
     });
   });
 
+  socket.on('disconnection', function() {
+    socket.get('playerID', function(err, playerID) {
+      delete players[playerID];
+      socket.broadcast.emit('playerDisconnect', playerID);
+    });
+  });
   //Broadcast chat events
   socket.on('playerChat', function (msg) {
     console.log(msg);
