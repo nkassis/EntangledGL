@@ -29,68 +29,26 @@
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-var Entangled = (function(entangled){
-  var canvas
-  , client
-  , objects = []
-  , socket
-  , players = entangled.players = {}
-  , chatBox;
 
-  /**
-   * Initialize Entangled
-   */
-  entangled.init = function() {
-    //var nickname = prompt("Please enter a name for your player");
-    chatBox = document.getElementById("entangled-chat");
+/*
+ * Player object
+ */
+var Entangled = (function(Entangled) {
+  Entangled.player = function(spec) {
+    console.log(spec);
+    var player = {
+        playerID  : spec.playerID
+      , playerNick: spec.playerNick
+      , position: spec.position
+    };
 
-    canvas  = document.getElementById("entangled-viewport");
-    //initialize webgl context
-
-
-    client = Entangled.renderingClient;
-    client.init(canvas);
-    entangled.client = client;
-    client.startRenderingLoop();
-    initSocket("bob");
+    //Load player model async
+    Entangled.loadModel(spec.modelName || "sphere", function(model) {
+      player.model = model;
+    });
+    
+    return player;
   };
 
-  /*
-   * Initialize the Websocket connection to server
-   * Sets up some of the websocket events and actions
-   */
-  function initSocket(nickname) {
-    var socket =  io.connect('http://localhost');
-
-    /**
-     * Load initial list of players
-     */
-    socket.on('playerList', function(playerList) {
-
-      for(var player in playerList) {
-	if(playerList.hasOwnProperty(player)){
-	  players[playerList[player].playerID] = entangled.player(playerList[player]);
-	}
-      }
-    });
-    socket.emit('playerCreate', nickname);
-
-    socket.on('newPlayer',function(data){
-      players[data.playerID] = Entangled.player(data);
-    });
-
-    socket.on('playerChat', function(msg){
-      $("<span>"+msg.playerID+": "+msg.msg+"</span>").appendTo(chatBox);
-    });
-
-    socket.on('playerDisconnect', function(playerID) {
-      delete players[playerID];
-    });
-  };
-
-  console.log("entangled started");
-
-  return entangled;
+  return Entangled;
 }(Entangled || {}));
-
-window.onload = Entangled.init;

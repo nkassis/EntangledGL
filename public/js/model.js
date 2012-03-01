@@ -29,68 +29,37 @@
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-var Entangled = (function(entangled){
-  var canvas
-  , client
-  , objects = []
-  , socket
-  , players = entangled.players = {}
-  , chatBox;
+var Entangled = (function(Entangled) {
+  Entangled.model = function(spec) {
+    var model = spec
+    ,   gl    = Entangled.client.gl;
+    console.log(model);
+    if(model.vertexArray) {
+      model.vertexBuffer = gl.createBuffer();
+      gl.bindBuffer(gl.ARRAY_BUFFER, model.vertexBuffer);
+      gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(model.vertexArray), gl.STATIC_DRAW);
+      model.vertexBuffer.itemSize = 3;
+      model.vertexBuffer.numItems = model.vertexArray.length/3;
 
-  /**
-   * Initialize Entangled
-   */
-  entangled.init = function() {
-    //var nickname = prompt("Please enter a name for your player");
-    chatBox = document.getElementById("entangled-chat");
+    }
 
-    canvas  = document.getElementById("entangled-viewport");
-    //initialize webgl context
+    if(model.normalArray) {
+      model.normalBuffer = gl.createBuffer();
+      gl.bindBuffer(gl.ARRAY_BUFFER, model.normalBuffer);
+      gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(model.normalArray), gl.STATIC_DRAW);
+      model.normalBuffer.itemSize = 3;
+      model.normalBuffer.numItems = model.normalArray.length/3;
+    }
 
 
-    client = Entangled.renderingClient;
-    client.init(canvas);
-    entangled.client = client;
-    client.startRenderingLoop();
-    initSocket("bob");
+    return model;
   };
 
-  /*
-   * Initialize the Websocket connection to server
-   * Sets up some of the websocket events and actions
-   */
-  function initSocket(nickname) {
-    var socket =  io.connect('http://localhost');
-
-    /**
-     * Load initial list of players
-     */
-    socket.on('playerList', function(playerList) {
-
-      for(var player in playerList) {
-	if(playerList.hasOwnProperty(player)){
-	  players[playerList[player].playerID] = entangled.player(playerList[player]);
-	}
-      }
-    });
-    socket.emit('playerCreate', nickname);
-
-    socket.on('newPlayer',function(data){
-      players[data.playerID] = Entangled.player(data);
-    });
-
-    socket.on('playerChat', function(msg){
-      $("<span>"+msg.playerID+": "+msg.msg+"</span>").appendTo(chatBox);
-    });
-
-    socket.on('playerDisconnect', function(playerID) {
-      delete players[playerID];
+  Entangled.loadModel = function(modelName, callback) {
+    $.get('/models/'+ modelName, function(modelData) {
+      callback(Entangled.model(modelData));
     });
   };
 
-  console.log("entangled started");
-
-  return entangled;
+  return Entangled;
 }(Entangled || {}));
-
-window.onload = Entangled.init;

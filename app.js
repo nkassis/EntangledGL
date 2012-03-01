@@ -3,13 +3,15 @@
  * Module dependencies.
  */
 
-var express = require('express')
-  , routes  = require('./routes')
-  , sockio  = require('socket.io')
-  , repl    = require('repl');
-
-var app = module.exports = express.createServer()
+var express     = require('express')
+  , routes      = require('./routes')
+  , sockio      = require('socket.io')
+  , repl        = require('repl')
+  , objGen = require('./libs/objectGenerator')
+  , models      = { sphere: objGen.makeSphere(10.0, 30, 15)}
+  , app = module.exports = express.createServer()
   , io = sockio.listen(app);
+
 
 
 // Configuration
@@ -35,33 +37,41 @@ app.configure('production', function(){
 
 app.get('/', routes.index);
 
+
+
+app.get('/models/:modelName', function(req, res) {
+  res.send(models[req.params.modelName]);
+});
+
+
 app.listen(5001);
 
 
-//Generates of unique player id's (just a sequence of number but whatever)
+//Generates of unique player id's (right now it's
+//just a sequence of number but whatever, it works ;p)
 var genPlayerID = (function(){
   var last = 0;
-  return function() {
+  return function(nick) {
     last += 1;
-    return last;
+    return nick+"_"+last;
   };
 
 }());
 
 
 //Command line server control
-var servercli = repl.start('entangled>');
+//var servercli = repl.start('entangled>');
 
 var players = {};
-servercli.context.getPlayerList = function() {
-  return players;
-};
+//servercli.context.getPlayerList = function() {
+  //return players;
+//};
 io.sockets.on('connection', function (socket) {
   //On player create set playerID and Nick
   socket.on('playerCreate', function(name){
     console.log(name + " has just connected");
-    var playerID = genPlayerID(); //get unique player ID
-
+    var playerID = genPlayerID(name); //get unique player ID
+    console.log(playerID + " " + name);
     //set the new players information on the socket and send info
     //to current clients
     socket.set('playerID', playerID , function(){
@@ -70,10 +80,12 @@ io.sockets.on('connection', function (socket) {
 	var player ={playerID: playerID
 		     , playerNick: name};
 
+	players[playerID] = player;
+
 	//tell the new guy who everyone is
 	socket.emit("playerList", players);
 
-	players[playerID] = player;
+
 
 	//Tell everyone who the new guy is
 	socket.broadcast.emit('newPlayer', player);
