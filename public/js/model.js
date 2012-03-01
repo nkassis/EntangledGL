@@ -30,10 +30,16 @@
  */
 
 var Entangled = (function(Entangled) {
-  Entangled.model = function(spec) {
-    var model = spec
+  Entangled.model = function(spec,dest) {
+    var model = dest
     ,   gl    = Entangled.client.gl;
-    console.log(model);
+
+    model.vertexArray = spec.vertexArray;
+    model.normalArray = spec.normalArray;
+    model.texCoordArray = spec.texCoordArray;
+
+
+    //Prepare Array Buffers for drawing
     if(model.vertexArray) {
       model.vertexBuffer = gl.createBuffer();
       gl.bindBuffer(gl.ARRAY_BUFFER, model.vertexBuffer);
@@ -51,14 +57,19 @@ var Entangled = (function(Entangled) {
       model.normalBuffer.numItems = model.normalArray.length/3;
     }
 
-
-    return model;
   };
-
+  Entangled.models={};
   Entangled.loadModel = function(modelName, callback) {
-    $.get('/models/'+ modelName, function(modelData) {
-      callback(Entangled.model(modelData));
-    });
+
+    if(!Entangled.models[modelName]) {
+      Entangled.models[modelName] = {};
+      $.get('/models/'+ modelName, function(modelData) {
+	Entangled.model(modelData,Entangled.models[modelName]);
+      });
+    }
+
+    callback(Entangled.models[modelName]);
+
   };
 
   return Entangled;

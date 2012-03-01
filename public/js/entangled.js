@@ -41,7 +41,7 @@ var Entangled = (function(entangled){
    * Initialize Entangled
    */
   entangled.init = function() {
-    //var nickname = prompt("Please enter a name for your player");
+    var nickname = prompt("Please enter a name for your player");
     chatBox = document.getElementById("entangled-chat");
 
     canvas  = document.getElementById("entangled-viewport");
@@ -52,7 +52,7 @@ var Entangled = (function(entangled){
     client.init(canvas);
     entangled.client = client;
     client.startRenderingLoop();
-    initSocket("bob");
+    initSocket(nickname);
   };
 
   /*
@@ -84,6 +84,7 @@ var Entangled = (function(entangled){
     });
 
     socket.on('playerDisconnect', function(playerID) {
+      console.log(playerID);
       delete players[playerID];
     });
   };

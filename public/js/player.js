@@ -35,7 +35,6 @@
  */
 var Entangled = (function(Entangled) {
   Entangled.player = function(spec) {
-    console.log(spec);
     var player = {
         playerID  : spec.playerID
       , playerNick: spec.playerNick
@@ -46,7 +45,7 @@ var Entangled = (function(Entangled) {
     Entangled.loadModel(spec.modelName || "sphere", function(model) {
       player.model = model;
     });
-    
+
     return player;
   };
 

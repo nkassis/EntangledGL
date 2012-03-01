@@ -112,12 +112,15 @@ exports.makeSphere = function(radius,slices,stacks) {
       var normals  = [normal0, normal1, normal2, normal1, normal3, normal2];
       var texCoords = [tex0, tex1, tex2, tex1, tex3, tex2];
 
-      for(var k=0; i < 6; i++) {
-	sphere.vertexArray.push.apply(sphere.vertexArray, vertices[k]);
-	sphere.normalArray.push.apply(sphere.normalArray, normals[k]);
-	sphere.texCoordArray.push.apply(sphere.texCoordArray, texCoords[k]);
+      for(var k=0; k < 6; k++) {
+	for(var l=0; l < 3; l++) {
+	  sphere.vertexArray.push(vertices[k][l]);
+	  sphere.normalArray.push(normals[k][l]);
+	}
+	for(l=0; l< 2; l++) {
+	  sphere.texCoordArray.push(texCoords[k][l]);
+	}
       }
-
     }
 
   }
