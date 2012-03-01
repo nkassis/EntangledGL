@@ -129,7 +129,7 @@ var Entangled = (function(Entangled) {
 	  gl.uniform4f(shaderProgram.ambiantColorUniform, 0.1, 0.1, 0.1,1.0);
 	  gl.uniform4f(shaderProgram.diffuseColorUniform, 0.8, 0.1, 0.8,1.0);
 	  gl.uniform3f(shaderProgram.pointLightDirectionUniform, 10, -100 , 10);
-	  gl.uniform4f(shaderProgram.specularColor, 1.0, 1.0 , 1.0, 1.0);
+	  gl.uniform4f(shaderProgram.specularColor, 0.5, 0.5 , 0.5, 1.0);
 
 	  callback();
 	});
@@ -150,7 +150,7 @@ var Entangled = (function(Entangled) {
       var normalMatrix = mat3.create();
       mat4.toInverseMat3(mvMatrix, normalMatrix);
       mat3.transpose(normalMatrix);
-      gl.uniformMatrix3fv(shaderProgram.nMatrixUniform, false, normalMatrix);
+      gl.uniformMatrix3fv(shaderProgram.normalMatrixUniform, false, normalMatrix);
     };
 
     function render(){
