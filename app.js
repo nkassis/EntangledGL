@@ -125,14 +125,13 @@ io.sockets.on('connection', function (socket) {
   });
 
   //broadcast new transformation matrix for player
-  socket.on('playerMove', function (data) {
-    console.log(data);
+  socket.on('playerUpdate', function (data) {
     socket.get('playerID',function(err,playerID){
-      socket.broadcast.emit('playerMove', {data: data
-					   ,playerID: playerID});
+      var update = {playerID : playerID};
+      update[data.property] = data.value;
+      socket.broadcast.emit('playerUpdate', update);
     });
   });
-
   socket.on('disconnection', function() {
     socket.get('playerID', function(err, playerID) {
       delete players[playerID];

@@ -62,7 +62,7 @@ var Entangled = (function(entangled){
    * Sets up some of the websocket events and actions
    */
   function initSocket(nickname) {
-    var socket =  io.connect('http://localhost');
+    socket =  io.connect('http://localhost');
 
     /**
      * Get self player ID
@@ -91,6 +91,10 @@ var Entangled = (function(entangled){
 
     socket.on('playerChat', function(msg){
       $("<span>"+msg.playerID+": "+msg.msg+"</span>").appendTo(chatBox);
+    });
+
+    socket.on('playerUpdate', function(update) {
+      entangled.players[update.playerID].position = update.position;
     });
 
     socket.on('playerDisconnect', function(playerID) {
@@ -132,6 +136,10 @@ var Entangled = (function(entangled){
 	Entangled.strifeRight();
 	break;
       }
+      socket.emit('playerUpdate',
+		  {property: "position",
+		   value: entangled.players[entangled.playerID].position});
+
       return false;
     });
   }
