@@ -136,11 +136,26 @@ var Entangled = (function(Entangled) {
       });
     }
 
-    var pMatrix  = mat4.create()
-      , mvMatrix = mat4.create()
-      ,  nMatrix  = mat4.create()
-      ,  eyePosition = [50,50,50];
+    var pMatrix       = mat4.create()
+      , mvMatrix      = mat4.create()
+      , nMatrix       = mat4.create()
+      , mvMatrixStack = []
+      , eyePosition   = [0,50,-50]
     ;
+
+     function mvPushMatrix() {
+        var copy = mat4.create();
+        mat4.set(mvMatrix, copy);
+        mvMatrixStack.push(copy);
+    }
+
+    function mvPopMatrix() {
+        if (mvMatrixStack.length == 0) {
+            throw "Invalid popMatrix!";
+        }
+        mvMatrix = mvMatrixStack.pop();
+    }
+
 
     var setMatrixUniforms = function() {
       gl.useProgram(shaderProgram);
@@ -156,7 +171,8 @@ var Entangled = (function(Entangled) {
     function render(){
       var players = Entangled.players
         , numObjects = players.length
-        , model = {}
+        , model
+        , position
       ;
 
       gl.viewport(0, 0, canvas.width, canvas.height);
@@ -170,12 +186,20 @@ var Entangled = (function(Entangled) {
 		  ,mvMatrix
 		 );
 
-      setMatrixUniforms();
+
 
       for(var player in players) {
 	if(players.hasOwnProperty(player)) {
+	  position = players[player].position;
 	  model  = players[player].model;
 	  if(model) {
+
+	    //Move to where player is
+	    mvPushMatrix();
+	    mat4.translate(mvMatrix,position);
+	    setMatrixUniforms();
+	    mvPopMatrix(); //get back to origin
+
 	    gl.bindBuffer(gl.ARRAY_BUFFER, model.vertexBuffer);
             gl.vertexAttribPointer(shaderProgram.vertexPositionAttribute,
 				   model.vertexBuffer.itemSize,

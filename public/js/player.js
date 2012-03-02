@@ -38,7 +38,7 @@ var Entangled = (function(Entangled) {
     var player = {
         playerID  : spec.playerID
       , playerNick: spec.playerNick
-      , position: spec.position
+      , position: spec.position || [0,0,0]
     };
 
     //Load player model async

@@ -53,6 +53,8 @@ var Entangled = (function(entangled){
     entangled.client = client;
     client.startRenderingLoop();
     initSocket(nickname);
+    initEvents();
+    console.log("entangled started");
   };
 
   /*
@@ -61,6 +63,13 @@ var Entangled = (function(entangled){
    */
   function initSocket(nickname) {
     var socket =  io.connect('http://localhost');
+
+    /**
+     * Get self player ID
+     */
+    socket.on('selfPlayerID',function(playerID) {
+     Entangled.playerID = playerID;
+    });
 
     /**
      * Load initial list of players
@@ -79,17 +88,56 @@ var Entangled = (function(entangled){
       players[data.playerID] = Entangled.player(data);
     });
 
+
     socket.on('playerChat', function(msg){
       $("<span>"+msg.playerID+": "+msg.msg+"</span>").appendTo(chatBox);
     });
 
     socket.on('playerDisconnect', function(playerID) {
-      console.log(playerID);
       delete players[playerID];
     });
   };
 
-  console.log("entangled started");
+  entangled.moveForward = function() {
+    players[entangled.playerID].position[2] += 1;
+  };
+
+  entangled.moveBackward = function() {
+    players[entangled.playerID].position[2] -= 1;
+  };
+
+  entangled.strifeLeft = function() {
+    players[entangled.playerID].position[0] += 1;
+  };
+
+  entangled.strifeRight = function() {
+    players[entangled.playerID].position[0] -= 1;
+  };
+
+
+
+  function initEvents() {
+    $("body").keydown(function(e) {
+      switch(e.which) {
+      case 38:
+	Entangled.moveForward();
+	break;
+      case 40:
+	Entangled.moveBackward();
+	break;
+      case 37:
+	Entangled.strifeLeft();
+	break;
+      case 39:
+	Entangled.strifeRight();
+	break;
+      }
+      return false;
+    });
+  }
+
+
+
 
   return entangled;
 }(Entangled || {}));
