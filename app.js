@@ -131,20 +131,24 @@ io.sockets.on('connection', function (socket) {
       socket.broadcast.emit('playerUpdate', update);
     });
   });
-  socket.on('disconnection', function() {
-    socket.get('playerID', function(err, playerID) {
-      delete players[playerID];
-      socket.broadcast.emit('playerDisconnect', playerID);
-    });
-  });
+
   //Broadcast chat events
   socket.on('playerChat', function (msg) {
-    console.log(msg);
     socket.get('playerID',function(err,playerID){
       socket.broadcast.emit('playerChat', {msg: msg
 					   ,playerID: playerID});
     });
   });
+
+
+  //Notifying clients of a closing client.
+  socket.on('disconnect', function() {
+    socket.get('playerID', function(err, playerID) {
+      delete players[playerID];
+      socket.broadcast.emit('playerDisconnect', playerID);
+    });
+  });
+  
 });
 
 console.log("Express server listening on port %d in %s mode", app.address().port, app.settings.env);
