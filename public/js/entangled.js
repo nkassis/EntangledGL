@@ -62,7 +62,8 @@ var Entangled = (function(entangled){
    * Sets up some of the websocket events and actions
    */
   function initSocket(nickname) {
-    socket =  io.connect('http://localhost');
+    var address = $(canvas).attr("data-address");
+    socket =  io.connect(address);
 
     /**
      * Get self player ID

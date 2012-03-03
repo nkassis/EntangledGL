@@ -40,9 +40,11 @@ var express     = require('express')
   , objGen = require('./libs/objectGenerator')
   , models      = { sphere: objGen.makeSphere(10.0, 30, 15)}
   , app = module.exports = express.createServer()
-  , io = sockio.listen(app);
+  , io = sockio.listen(app)
+  , port   = process.argv[3] || 5001
+;
 
-
+global.EntangledAddress = process.argv[2] || "localhost";
 
 // Configuration
 
@@ -64,17 +66,14 @@ app.configure('production', function(){
 });
 
 // Routes
-
 app.get('/', routes.index);
-
-
 
 app.get('/models/:modelName', function(req, res) {
   res.send(models[req.params.modelName]);
 });
 
 
-app.listen(5001);
+app.listen(port);
 
 
 //Generates of unique player id's (right now it's

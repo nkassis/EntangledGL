@@ -11,6 +11,7 @@ Install & use
 Requires node.js
 
 1. npm install -d
-2. node app.js
+2. node app.js [address] [port]
+
 
 

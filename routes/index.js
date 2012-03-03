@@ -2,5 +2,5 @@
  * GET home page.
  */
 exports.index = function(req, res){
-  res.render('index', { title: 'EntangledGL' });
+  res.render('index', { title: 'EntangledGL', address: EntangledAddress });
 };
