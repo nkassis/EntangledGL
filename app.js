@@ -107,7 +107,8 @@ io.sockets.on('connection', function (socket) {
       socket.set('playerNick', name, function(){
 
 	var player ={playerID: playerID
-		     , playerNick: name};
+		     , playerNick: name
+		     , position : [0,0,0]};
 
 	players[playerID] = player;
 
@@ -128,6 +129,10 @@ io.sockets.on('connection', function (socket) {
     socket.get('playerID',function(err,playerID){
       var update = {playerID : playerID};
       update[data.property] = data.value;
+
+      if(update.position != undefined) {
+	players[update.playerID].position = update["position"];
+      }
       socket.broadcast.emit('playerUpdate', update);
     });
   });
