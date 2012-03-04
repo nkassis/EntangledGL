@@ -7,7 +7,7 @@ a {
   color: #00B7FF;
 }
 #entangled-viewport {
-    position: relative;
+    position: absolute;
     left:     0px;
     top:      0px;
     width:  700px;
@@ -15,9 +15,20 @@ a {
 }
 
 #entangled-chat {
-    position: relative;
+    position: absolute;
     left: 701px;
     top: 0px;
-    width: 200px;
+    width: 300px;
     height: 500px;
+}
+
+#chatlog {
+ height: 470px;
+ overflow: scroll;
+ 
+}
+
+.message {
+    max-width: 280px;
+    word-wrap: break-word;
 }

@@ -41,8 +41,8 @@ var Entangled = (function(entangled){
    * Initialize Entangled
    */
   entangled.init = function() {
-    var nickname = prompt("Please enter a name for your player");
-    chatBox = document.getElementById("entangled-chat");
+    entangled.nickname = prompt("Please enter a name for your player");
+    chatBox = document.getElementById("chatlog");
 
     canvas  = document.getElementById("entangled-viewport");
     //initialize webgl context
@@ -52,7 +52,7 @@ var Entangled = (function(entangled){
     client.init(canvas);
     entangled.client = client;
     client.startRenderingLoop();
-    initSocket(nickname);
+    initSocket(entangled.nickname);
     initEvents();
     console.log("entangled started");
   };
@@ -64,7 +64,6 @@ var Entangled = (function(entangled){
   function initSocket(nickname) {
     var address = $(canvas).attr("data-address");
     socket =  io.connect(address);
-
     /**
      * Get self player ID
      */
@@ -83,6 +82,7 @@ var Entangled = (function(entangled){
 	}
       }
     });
+    
     socket.emit('playerCreate', nickname);
 
     socket.on('newPlayer',function(data){
@@ -90,9 +90,7 @@ var Entangled = (function(entangled){
     });
 
 
-    socket.on('playerChat', function(msg){
-      $("<span>"+msg.playerID+": "+msg.msg+"</span>").appendTo(chatBox);
-    });
+    socket.on('playerChat', entangled.addToChat);
 
     socket.on('playerUpdate', function(update) {
       entangled.players[update.playerID].position = update.position;
@@ -102,46 +100,80 @@ var Entangled = (function(entangled){
       delete players[playerID];
     });
   };
+		   
+  entangled.addToChat=function(msg) {
+    $("<div class=\"message\">"+Entangled.players[msg.playerID].playerNick+": "+msg.msg+"</div>").appendTo(chatBox);
+    var height = $("#chatlog").children().length;
+    $("#chatlog").scrollTop(height*100);
+  };
 
   entangled.moveForward = function() {
     players[entangled.playerID].position[2] += 1;
+    return {property: "position",
+	    value: entangled.players[entangled.playerID].position};
+
   };
 
   entangled.moveBackward = function() {
     players[entangled.playerID].position[2] -= 1;
+
+    return {property: "position",
+	    value: entangled.players[entangled.playerID].position};
   };
 
   entangled.strifeLeft = function() {
     players[entangled.playerID].position[0] += 1;
+    return {property: "position",
+	    value: entangled.players[entangled.playerID].position};
+
   };
 
   entangled.strifeRight = function() {
     players[entangled.playerID].position[0] -= 1;
+    return {property: "position",
+	    value: entangled.players[entangled.playerID].position};
+
   };
 
-
+  entangled.playerUpdate=function(updater)  {
+    var update = updater();
+    socket.emit('playerUpdate',update);
+  };
 
   function initEvents() {
-    $("body").keydown(function(e) {
+    $(document).keydown(function(e) {
+      var ret=true;
       switch(e.which) {
+      case 13:
+	var msg = $("#chat-textbox").val();
+	if(msg) {
+	  $("#chat-textbox").val('');
+	  socket.emit('playerChat', msg);
+	  Entangled.addToChat({  playerID: entangled.playerID
+		     , msg: msg});
+	}
+	ret=false;
+	break;
       case 38:
-	Entangled.moveForward();
+	Entangled.playerUpdate(Entangled.moveForward);
+	ret=false;
 	break;
       case 40:
-	Entangled.moveBackward();
+	Entangled.playerUpdate(Entangled.moveBackward);
+	ret=false;
 	break;
       case 37:
-	Entangled.strifeLeft();
+	Entangled.playerUpdate(Entangled.strifeLeft);
+	ret=false;
 	break;
       case 39:
-	Entangled.strifeRight();
+	Entangled.playerUpdate(Entangled.strifeRight);
+	ret=false;
 	break;
       }
-      socket.emit('playerUpdate',
-		  {property: "position",
-		   value: entangled.players[entangled.playerID].position});
+			  
+      return ret;
 
-      return false;
     });
   }
 

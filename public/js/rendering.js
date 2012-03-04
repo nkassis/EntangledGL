@@ -192,8 +192,8 @@ var Entangled = (function(Entangled) {
 	if(players.hasOwnProperty(player)) {
 	  position = players[player].position;
 	  model  = players[player].model;
-	  if(model) {
-
+	  if(model && model.vertexBuffer && model.normalBuffer ) {
+	    
 	    //Move to where player is
 	    mvPushMatrix();
 	    mat4.translate(mvMatrix,position);
