@@ -40,9 +40,11 @@ var express     = require('express')
   , objGen = require('./libs/objectGenerator')
   , models      = { sphere: objGen.makeSphere(10.0, 30, 15)}
   , app = module.exports = express.createServer()
-  , io = sockio.listen(app);
+  , io = sockio.listen(app)
+  , port   = process.argv[3] || 5001
+;
 
-
+global.EntangledAddress = process.argv[2] || "localhost";
 
 // Configuration
 
@@ -64,17 +66,14 @@ app.configure('production', function(){
 });
 
 // Routes
-
 app.get('/', routes.index);
-
-
 
 app.get('/models/:modelName', function(req, res) {
   res.send(models[req.params.modelName]);
 });
 
 
-app.listen(5001);
+app.listen(port);
 
 
 //Generates of unique player id's (right now it's
@@ -108,7 +107,8 @@ io.sockets.on('connection', function (socket) {
       socket.set('playerNick', name, function(){
 
 	var player ={playerID: playerID
-		     , playerNick: name};
+		     , playerNick: name
+		     , position : [0,0,0]};
 
 	players[playerID] = player;
 
@@ -129,23 +129,31 @@ io.sockets.on('connection', function (socket) {
     socket.get('playerID',function(err,playerID){
       var update = {playerID : playerID};
       update[data.property] = data.value;
+
+      if(update.position != undefined) {
+	players[update.playerID].position = update["position"];
+      }
       socket.broadcast.emit('playerUpdate', update);
     });
   });
-  socket.on('disconnection', function() {
-    socket.get('playerID', function(err, playerID) {
-      delete players[playerID];
-      socket.broadcast.emit('playerDisconnect', playerID);
-    });
-  });
+
   //Broadcast chat events
   socket.on('playerChat', function (msg) {
-    console.log(msg);
     socket.get('playerID',function(err,playerID){
       socket.broadcast.emit('playerChat', {msg: msg
 					   ,playerID: playerID});
     });
   });
+
+
+  //Notifying clients of a closing client.
+  socket.on('disconnect', function() {
+    socket.get('playerID', function(err, playerID) {
+      delete players[playerID];
+      socket.broadcast.emit('playerDisconnect', playerID);
+    });
+  });
+  
 });
 
 console.log("Express server listening on port %d in %s mode", app.address().port, app.settings.env);

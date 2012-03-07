@@ -194,8 +194,8 @@ var Entangled = (function(Entangled) {
 	if(players.hasOwnProperty(player)) {
 	  position = players[player].position;
 	  model  = players[player].model;
-	  if(model) {
-
+	  if(model && model.vertexBuffer && model.normalBuffer ) {
+	    
 	    //Move to where player is
 	    mvPushMatrix();
 	    var transformed_position = vec3.create();

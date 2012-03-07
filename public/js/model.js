@@ -33,7 +33,7 @@ var Entangled = (function(Entangled) {
   Entangled.model = function(spec,dest) {
     var model = dest
     ,   gl    = Entangled.client.gl;
-
+    console.log(spec);
     model.vertexArray = spec.vertexArray;
     model.normalArray = spec.normalArray;
     model.texCoordArray = spec.texCoordArray;

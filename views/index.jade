@@ -1,5 +1,7 @@
-canvas(id='entangled-viewport', width=700, height=500)
+canvas(id='entangled-viewport', data-address=address, width=700, height=500)
 div(id='entangled-chat')
+	div(id='chatlog')
+	input(type="text", size=50, name="chat-textbox", id='chat-textbox')
 script(src='/socket.io/socket.io.js')
 script(src='/js/libs/webgl-utils.js')
 script(src='/js/libs/gl-matrix-min.js')
