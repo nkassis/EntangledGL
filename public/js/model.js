@@ -33,11 +33,28 @@ var Entangled = (function(Entangled) {
   Entangled.model = function(spec,dest) {
     var model = dest
     ,   gl    = Entangled.client.gl;
-    console.log(spec);
+    
     model.vertexArray = spec.vertexArray;
     model.normalArray = spec.normalArray;
     model.texCoordArray = spec.texCoordArray;
 
+    switch(spec.type) {
+    case "points":
+      model.type = gl.POINTS;
+      break;
+    case "lines":
+      model.type = gl.LINES;
+      break;
+    case "triangle_fan":
+      model.type = gl.TRIANGLE_FAN;
+      break;
+    case "triangle_strip":
+      model.type = gl.TRIANGLE_STRIP;
+      break;
+    default:
+      model.type = gl.TRIANGLES;
+      break;
+    }
 
     //Prepare Array Buffers for drawing
     if(model.vertexArray) {

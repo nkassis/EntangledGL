@@ -32,8 +32,9 @@
 var Entangled = (function(Entangled) {
   Entangled.renderingClient = (function(client) {
     var canvas
-    , gl
-    , shaderProgram;
+      , gl
+      , shaderProgram
+    ;
 
 
     /**
@@ -129,7 +130,7 @@ var Entangled = (function(Entangled) {
 	  gl.uniform4f(shaderProgram.ambiantColorUniform, 0.1, 0.1, 0.1,1.0);
 	  gl.uniform4f(shaderProgram.diffuseColorUniform, 0.8, 0.1, 0.8,1.0);
 	  gl.uniform3f(shaderProgram.pointLightDirectionUniform, 10, -100 , 10);
-	  gl.uniform4f(shaderProgram.specularColor, 0.5, 0.5 , 0.5, 1.0);
+	  gl.uniform4f(shaderProgram.specularColor, 1.0, 1.0 , 1.0, 1.0);
 
 	  callback();
 	});
@@ -187,42 +188,61 @@ var Entangled = (function(Entangled) {
 		 );
 
 
-      var last_model = {}
-        , self_position = Entangled.players[Entangled.playerID].position
-      ;
-      for(var player in players) {
-	if(players.hasOwnProperty(player)) {
-	  position = players[player].position;
-	  model  = players[player].model;
-	  if(model && model.vertexBuffer && model.normalBuffer ) {
-	    
-	    //Move to where player is
-	    mvPushMatrix();
-	    var transformed_position = vec3.create();
-	    vec3.subtract(position, self_position, transformed_position);
-	    mat4.translate(mvMatrix,transformed_position);
-	    setMatrixUniforms();
-	    mvPopMatrix(); //get back to origin
-	    if(last_model != model) {
-	      gl.bindBuffer(gl.ARRAY_BUFFER, model.vertexBuffer);
-              gl.vertexAttribPointer(shaderProgram.vertexPositionAttribute,
-				     model.vertexBuffer.itemSize,
-				     gl.FLOAT,
-				     false,
-				     0,
-				     0);
+      var last_model = {};
 
-              gl.bindBuffer(gl.ARRAY_BUFFER, model.normalBuffer);
-              gl.vertexAttribPointer(shaderProgram.vertexNormalAttribute,
-				     model.normalBuffer.itemSize,
-				     gl.FLOAT,
-				     false,
-				     0,
-				     0);
-	      last_model = model;
-	    }
-	    gl.drawArrays(gl.TRIANGLES, 0, model.vertexBuffer.numItems);
+      //Center where the user is (if define) else use origin
+      var self_position = [0,0,0];
+      if(Entangled.players) {
+         self_position = Entangled.players[Entangled.playerID].position;
+      }
+
+
+      function drawModel(model,position) {
+	//Move to where player is
+	mvPushMatrix();
+	var transformed_position = vec3.create();
+	vec3.subtract(position, self_position, transformed_position);
+	mat4.translate(mvMatrix,transformed_position);
+	setMatrixUniforms();
+	mvPopMatrix(); //get back to origin
+
+
+	if(last_model != model) {
+	    gl.bindBuffer(gl.ARRAY_BUFFER, model.vertexBuffer);
+            gl.vertexAttribPointer(shaderProgram.vertexPositionAttribute,
+				   model.vertexBuffer.itemSize,
+				   gl.FLOAT,
+				   false,
+				   0,
+				   0);
+
+            gl.bindBuffer(gl.ARRAY_BUFFER, model.normalBuffer);
+            gl.vertexAttribPointer(shaderProgram.vertexNormalAttribute,
+				   model.normalBuffer.itemSize,
+				   gl.FLOAT,
+				   false,
+				   0,
+				   0);
+	    last_model = model;
 	  }
+	  gl.drawArrays(model.type, 0, model.vertexBuffer.numItems);
+
+
+	}
+
+	if(Entangled.grid != undefined) {
+	  drawModel(Entangled.grid,[0,0,0]);
+	}
+
+	for(var player in players) {
+	  if(players.hasOwnProperty(player)) {
+	    position = players[player].position;
+	    model  = players[player].model;
+	    if(model && model.vertexBuffer && model.normalBuffer ) {
+
+	      //draw player model
+	      drawModel(model,position);
+	    }
 	}
       }
 
