@@ -215,7 +215,7 @@ var Entangled = (function(Entangled) {
 				   false,
 				   0,
 				   0);
-	    gl.drawArrays(gl.TRIANGLES, 0, model.vertexBuffer.numItems);
+	    gl.drawArrays(model.type, 0, model.vertexBuffer.numItems);
 	  }
 	}
       }
