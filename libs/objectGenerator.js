@@ -128,3 +128,43 @@ exports.makeSphere = function(radius,slices,stacks) {
 
 };
 
+
+/**
+ * Make a grid on the x,z plane
+ *
+ * @param {Number} startx  begining of grid in x direction
+ * @param {Number} endx    end of grid in x direction
+ * @param {Number} startz  begining of grid in z direction
+ * @param {Number} endz    end of grid in z direction
+ * @param {Number} y       height of the grid
+ * @param {Number} spacing spacing between line in grid
+ */
+exports.makeGrid = function(startx, endx, startz, endz, y, spacing) {
+ var grid = { vertexArray: []
+	     ,normalArray: []
+   	     ,type       : "lines"}
+   , i
+ ;
+
+  for(i=startx; Math.abs(i) <= Math.abs(endx); i += spacing) {
+
+    grid.vertexArray.push.apply(grid.vertexArray, [i, y, startz]);
+    grid.vertexArray.push.apply(grid.vertexArray, [i, y, endz]);
+
+    grid.normalArray.push.apply(grid.normalArray, [0, 1, 0]);
+    grid.normalArray.push.apply(grid.normalArray, [0, 1, 0]);
+
+  }
+
+  for(i =startz; Math.abs(i) <= Math.abs(endz); i += spacing) {
+
+    grid.vertexArray.push.apply(grid.vertexArray, [startx, y, i]);
+    grid.vertexArray.push.apply(grid.vertexArray, [endx, y, i]);
+
+    grid.normalArray.push.apply(grid.normalArray, [0, 1, 0]);
+    grid.normalArray.push.apply(grid.normalArray, [0, 1, 0]);
+
+  }
+
+  return grid;
+};

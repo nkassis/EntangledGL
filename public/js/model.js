@@ -33,7 +33,7 @@ var Entangled = (function(Entangled) {
   Entangled.model = function(spec,dest) {
     var model = dest
     ,   gl    = Entangled.client.gl;
-    
+
     model.vertexArray = spec.vertexArray;
     model.normalArray = spec.normalArray;
     model.texCoordArray = spec.texCoordArray;
@@ -88,6 +88,10 @@ var Entangled = (function(Entangled) {
     callback(Entangled.models[modelName]);
 
   };
+
+  Entangled.loadModel("grid", function(model) {
+      Entangled.grid = model;
+  });
 
   return Entangled;
 }(Entangled || {}));

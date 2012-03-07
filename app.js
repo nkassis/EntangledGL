@@ -37,11 +37,13 @@ var express     = require('express')
   , routes      = require('./routes')
   , sockio      = require('socket.io')
   , repl        = require('repl')
-  , objGen = require('./libs/objectGenerator')
-  , models      = { sphere: objGen.makeSphere(10.0, 30, 15)}
-  , app = module.exports = express.createServer()
-  , io = sockio.listen(app)
-  , port   = process.argv[3] || 5001
+  , objGen      = require('./libs/objectGenerator')
+  , models      = {   sphere: objGen.makeSphere(10.0, 30, 15)
+		    , grid: objGen.makeGrid(-100,100,-100,100, -10,10)
+		  }
+  , app         = module.exports = express.createServer()
+  , io          = sockio.listen(app)
+  , port        = process.argv[3] || 5001
 ;
 
 global.EntangledAddress = process.argv[2] || "localhost";
@@ -69,7 +71,9 @@ app.configure('production', function(){
 app.get('/', routes.index);
 
 app.get('/models/:modelName', function(req, res) {
+  console.log("LOADING MODEL: " + req.params.modelName);
   res.send(models[req.params.modelName]);
+
 });
 
 
@@ -153,7 +157,7 @@ io.sockets.on('connection', function (socket) {
       socket.broadcast.emit('playerDisconnect', playerID);
     });
   });
-  
+
 });
 
 console.log("Express server listening on port %d in %s mode", app.address().port, app.settings.env);

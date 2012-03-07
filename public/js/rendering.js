@@ -227,7 +227,6 @@ var Entangled = (function(Entangled) {
 	  }
 	  gl.drawArrays(model.type, 0, model.vertexBuffer.numItems);
 
-
 	}
 
 	if(Entangled.grid != undefined) {
