@@ -187,7 +187,9 @@ var Entangled = (function(Entangled) {
 		 );
 
 
-
+      var last_model = {}
+        , self_position = Entangled.players[Entangled.playerID].position
+      ;
       for(var player in players) {
 	if(players.hasOwnProperty(player)) {
 	  position = players[player].position;
@@ -196,25 +198,29 @@ var Entangled = (function(Entangled) {
 
 	    //Move to where player is
 	    mvPushMatrix();
-	    mat4.translate(mvMatrix,position);
+	    var transformed_position = vec3.create();
+	    vec3.subtract(position, self_position, transformed_position);
+	    mat4.translate(mvMatrix,transformed_position);
 	    setMatrixUniforms();
 	    mvPopMatrix(); //get back to origin
+	    if(last_model != model) {
+	      gl.bindBuffer(gl.ARRAY_BUFFER, model.vertexBuffer);
+              gl.vertexAttribPointer(shaderProgram.vertexPositionAttribute,
+				     model.vertexBuffer.itemSize,
+				     gl.FLOAT,
+				     false,
+				     0,
+				     0);
 
-	    gl.bindBuffer(gl.ARRAY_BUFFER, model.vertexBuffer);
-            gl.vertexAttribPointer(shaderProgram.vertexPositionAttribute,
-				   model.vertexBuffer.itemSize,
-				   gl.FLOAT,
-				   false,
-				   0,
-				   0);
-
-            gl.bindBuffer(gl.ARRAY_BUFFER, model.normalBuffer);
-            gl.vertexAttribPointer(shaderProgram.vertexNormalAttribute,
-				   model.normalBuffer.itemSize,
-				   gl.FLOAT,
-				   false,
-				   0,
-				   0);
+              gl.bindBuffer(gl.ARRAY_BUFFER, model.normalBuffer);
+              gl.vertexAttribPointer(shaderProgram.vertexNormalAttribute,
+				     model.normalBuffer.itemSize,
+				     gl.FLOAT,
+				     false,
+				     0,
+				     0);
+	      last_model = model;
+	    }
 	    gl.drawArrays(gl.TRIANGLES, 0, model.vertexBuffer.numItems);
 	  }
 	}
