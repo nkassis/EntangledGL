@@ -82,7 +82,7 @@ var Entangled = (function(entangled){
 	}
       }
     });
-    
+
     socket.emit('playerCreate', nickname);
 
     socket.on('newPlayer',function(data){
@@ -100,7 +100,7 @@ var Entangled = (function(entangled){
       delete players[playerID];
     });
   };
-		   
+
   entangled.addToChat=function(msg) {
     $("<div class=\"message\">"+Entangled.players[msg.playerID].playerNick+": "+msg.msg+"</div>").appendTo(chatBox);
     var height = $("#chatlog").children().length;
@@ -145,7 +145,7 @@ var Entangled = (function(entangled){
       var ret=true;
       switch(e.which) {
       case 13:
-	var msg = $("#chat-textbox").val();
+	var msg = $("<div>"+$("#chat-textbox").val()+"</div>").text();
 	if(msg) {
 	  $("#chat-textbox").val('');
 	  socket.emit('playerChat', msg);
@@ -171,7 +171,7 @@ var Entangled = (function(entangled){
 	ret=false;
 	break;
       }
-			  
+
       return ret;
 
     });

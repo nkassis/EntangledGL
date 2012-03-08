@@ -36,6 +36,7 @@
 var express     = require('express')
   , routes      = require('./routes')
   , sockio      = require('socket.io')
+  , sanitizer   = require('sanitizer')
   , repl        = require('repl')
   , objGen      = require('./libs/objectGenerator')
   , models      = {   sphere: objGen.makeSphere(10.0, 30, 15)
@@ -144,7 +145,7 @@ io.sockets.on('connection', function (socket) {
   //Broadcast chat events
   socket.on('playerChat', function (msg) {
     socket.get('playerID',function(err,playerID){
-      socket.broadcast.emit('playerChat', {msg: msg
+      socket.broadcast.emit('playerChat', {msg: sanitizer.sanitize(msg)
 					   ,playerID: playerID});
     });
   });
