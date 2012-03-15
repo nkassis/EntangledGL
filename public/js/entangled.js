@@ -31,11 +31,16 @@
 
 var Entangled = (function(entangled){
   var canvas
-  , client
-  , objects = []
-  , socket
-  , players = entangled.players = {}
-  , chatBox;
+    , client
+    , objects = []
+    , socket
+    , players = entangled.players = {}
+    , chatBox
+    , arcball
+    , drag = false
+    , startDrag = [0,0,0]
+    , translation = [0,0,0]
+  ;
 
   /**
    * Initialize Entangled
@@ -51,10 +56,16 @@ var Entangled = (function(entangled){
     client = Entangled.renderingClient;
     client.init(canvas);
     entangled.client = client;
-    client.startRenderingLoop();
+    arcball = Entangled.Arcball(canvas.height,canvas.width);
+    client.lastRot = mat4.identity(mat4.create());
+    client.currentRot = mat4.identity(mat4.create());
+
+    //after the server connection is setup start the rendering loop.
     initSocket(entangled.nickname);
+    client.startRenderingLoop();
     initEvents();
     console.log("entangled started");
+
   };
 
   /*
@@ -140,6 +151,9 @@ var Entangled = (function(entangled){
     socket.emit('playerUpdate',update);
   };
 
+
+
+
   function initEvents() {
     $(document).keydown(function(e) {
       var ret=true;
@@ -175,11 +189,31 @@ var Entangled = (function(entangled){
       return ret;
 
     });
-  }
 
 
+    $(canvas).mousedown(
+      function(e){
+	drag = true;
+	arcball.click(getCursorPosition(e));
+	client.currentRot = client.lastRot;
+	return false;
+      });
+    $(canvas).mousemove(
+      function(e) {
+	if(drag) {
+	    var quat = arcball.drag(getCursorPosition(e));
+	    client.currentRot = mat4.multiply(quat4.toMat4(quat),client.lastRot);
+	}
+	return false;
+      });
 
+    $(canvas).mouseup(
+      function(e){
+	drag=false;
+	client.lastRot = client.currentRot;
+      });
 
+  };
   return entangled;
 }(Entangled || {}));
 

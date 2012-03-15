@@ -34,17 +34,21 @@
  * Player object
  */
 var Entangled = (function(Entangled) {
-  Entangled.player = function(spec) {
-    var player = {
-        playerID  : spec.playerID
-      , playerNick: spec.playerNick
-      , position: spec.position || [0,0,0]
-    };
+  //Hidden constructor for extandability
+  Entangled._Player = function(spec){
+    var player = this;
+    player.playerID   = spec.playerID;
+    player.playerNick = spec.playerNick;
+    player.position = spec.position || [0,0,0];
 
     //Load player model async
     Entangled.loadModel(spec.modelName || "sphere", function(model) {
       player.model = model;
     });
+  };
+  Entangled.player = function(spec) {
+
+    var player = new Entangled._Player(spec);
 
     return player;
   };

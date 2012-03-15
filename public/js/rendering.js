@@ -181,11 +181,12 @@ var Entangled = (function(Entangled) {
 
       mat4.perspective(45, canvas.width/canvas.height, 0.1, 1000.0, pMatrix);
       mat4.identity(mvMatrix);
+      //mat4.multiply(mvMatrix,client.currentRot);
       mat4.lookAt(eyePosition
 		  ,[0,0,0]
-		  ,[0,1,0]
-		  ,mvMatrix
-		 );
+      		  ,[0,1,0]
+      		  ,mvMatrix
+      		 );
 
 
       var last_model = {};
@@ -196,12 +197,12 @@ var Entangled = (function(Entangled) {
          self_position = Entangled.players[Entangled.playerID].position;
       }
 
-
       function drawModel(model,position) {
 	//Move to where player is
 	mvPushMatrix();
 	var transformed_position = vec3.create();
-	vec3.subtract(position, self_position, transformed_position);
+	mat4.multiply(mvMatrix,client.currentRot);
+	vec3.subtract(position,self_position, transformed_position);
 	mat4.translate(mvMatrix,transformed_position);
 	setMatrixUniforms();
 	mvPopMatrix(); //get back to origin
@@ -238,7 +239,6 @@ var Entangled = (function(Entangled) {
 	    position = players[player].position;
 	    model  = players[player].model;
 	    if(model && model.vertexBuffer && model.normalBuffer ) {
-
 	      //draw player model
 	      drawModel(model,position);
 	    }
