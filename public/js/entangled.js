@@ -168,18 +168,22 @@ var Entangled = (function(entangled){
 	}
 	ret=false;
 	break;
+      case 87:
       case 38:
 	Entangled.playerUpdate(Entangled.moveForward);
 	ret=false;
 	break;
+      case 83:
       case 40:
 	Entangled.playerUpdate(Entangled.moveBackward);
 	ret=false;
 	break;
+      case 65:
       case 37:
 	Entangled.playerUpdate(Entangled.strifeLeft);
 	ret=false;
 	break;
+      case 68:
       case 39:
 	Entangled.playerUpdate(Entangled.strifeRight);
 	ret=false;
