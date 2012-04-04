@@ -127,10 +127,10 @@ var Entangled = (function(Entangled) {
           shaderProgram.diffuseColorUniform = gl.getUniformLocation(shaderProgram, "diffuseColor");
 	  shaderProgram.specularColorUniform = gl.getUniformLocation(shaderProgram, "specularColor");
 
-	  gl.uniform4f(shaderProgram.ambiantColorUniform, 0.1, 0.1, 0.1,1.0);
-	  gl.uniform4f(shaderProgram.diffuseColorUniform, 0.8, 0.1, 0.8,1.0);
-	  gl.uniform3f(shaderProgram.pointLightDirectionUniform, 10, -100 , 10);
-	  gl.uniform4f(shaderProgram.specularColor, 1.0, 1.0 , 1.0, 1.0);
+	  gl.uniform4fv(shaderProgram.ambientColorUniform, [0.1, 0.1, 0.1,1.0]);
+	  gl.uniform4fv(shaderProgram.diffuseColorUniform, [0.8, 0.1, 0.8,1.0]);
+	  gl.uniform3fv(shaderProgram.pointLightDirectionUniform,[ 10, -100 , 10]);
+	  gl.uniform4fv(shaderProgram.specularColor, [1.0, 1.0 , 1.0, 1.0]);
 
 	  callback();
 	});

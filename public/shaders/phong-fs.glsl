@@ -2,16 +2,13 @@
 precision highp float;
 #endif
 
-varying vec3 transformedNormal;
-varying vec4 mvPosition;
-
-
-
 uniform vec4 ambientColor;
 uniform vec4 diffuseColor;
 uniform vec3 pointLightLocation;
 uniform vec4 specularColor;
 
+varying vec3 transformedNormal;
+varying vec4 mvPosition;
 
 void main(void) {
   float materialShininess = 30.0;
