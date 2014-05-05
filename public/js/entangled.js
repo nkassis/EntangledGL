@@ -34,7 +34,7 @@ var Entangled = (function(entangled){
     , client
     , objects = []
     , socket
-    , players = entangled.players = {}
+    , players = entangled.players = []
     , chatBox
     , arcball
     , drag = false
@@ -54,18 +54,27 @@ var Entangled = (function(entangled){
 
 
     client = Entangled.renderingClient;
-    client.init(canvas);
     entangled.client = client;
-    arcball = Entangled.Arcball(canvas.height,canvas.width);
-    client.lastRot = mat4.identity(mat4.create());
-    client.currentRot = mat4.identity(mat4.create());
-
     //after the server connection is setup start the rendering loop.
     initSocket(entangled.nickname);
-    client.startRenderingLoop();
-    initEvents();
-    console.log("entangled started");
 
+    client.init(canvas, function() {
+      arcball = Entangled.Arcball(canvas.height,canvas.width);
+      client.lastRot = mat4.identity(mat4.create());
+      client.currentRot = mat4.identity(mat4.create());
+
+      initEvents();
+      console.log("entangled started");
+      gameLoop();
+    });
+  };
+
+  /**
+   * Game Loop
+   */
+  function gameLoop(){
+    requestAnimFrame(gameLoop);
+    entangled.client.render();
   };
 
   /*
@@ -157,17 +166,22 @@ var Entangled = (function(entangled){
   function initEvents() {
     $(document).keydown(function(e) {
       var ret=true;
-      switch(e.which) {
-      case 13:
-	var msg = $("<div>"+$("#chat-textbox").val()+"</div>").text();
-	if(msg) {
-	  $("#chat-textbox").val('');
-	  socket.emit('playerChat', msg);
-	  Entangled.addToChat({  playerID: entangled.playerID
-		     , msg: msg});
+      //Don't grab keystrokes meant for the chat input field
+      if(e.target == document.getElementById("chat-textbox")) {
+	if( e.which == 13 ) {
+	  var msg = $("<div>"+$("#chat-textbox").val()+"</div>").text();
+	  if(msg) {
+	    $("#chat-textbox").val('');
+	    socket.emit('playerChat', msg);
+	    Entangled.addToChat({  playerID: entangled.playerID
+				   , msg: msg});
+	  }
+	  return false;
 	}
-	ret=false;
-	break;
+	return true;
+      }
+
+      switch(e.which) {
       case 87:
       case 38:
 	Entangled.playerUpdate(Entangled.moveForward);
@@ -195,6 +209,7 @@ var Entangled = (function(entangled){
     });
 
 
+
     $(canvas).mousedown(
       function(e){
 	drag = true;
@@ -216,9 +231,8 @@ var Entangled = (function(entangled){
 	drag=false;
 	client.lastRot = client.currentRot;
       });
-
   };
   return entangled;
 }(Entangled || {}));
 
-window.onload = Entangled.init;
+window.addEventListener("load", Entangled.init);

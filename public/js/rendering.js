@@ -41,7 +41,7 @@ var Entangled = (function(Entangled) {
      * initialize the rendering client
      * @param canvasElement
      */
-    client.init = function(canvasElement){
+    client.init = function(canvasElement, callback){
       canvas = canvasElement;
       gl = canvas.getContext('webgl');
 
@@ -59,6 +59,7 @@ var Entangled = (function(Entangled) {
       gl.enable(gl.DEPTH_TEST);
       gl.enable(gl.CULL_FACE);
 
+      initShaders(callback);
     };
 
     /**
@@ -123,8 +124,8 @@ var Entangled = (function(Entangled) {
 	  shaderProgram.normalMatrixUniform = gl.getUniformLocation(shaderProgram, "NMatrix");
 	  shaderProgram.ambientColorUniform = gl.getUniformLocation(shaderProgram, "ambientColor");
 
-          shaderProgram.pointLigthDirectionUniform = gl.getUniformLocation(shaderProgram, "pointLightDirection");
-          shaderProgram.diffuseColorUniform = gl.getUniformLocation(shaderProgram, "diffuseColor");
+	  shaderProgram.pointLigthDirectionUniform = gl.getUniformLocation(shaderProgram, "pointLightDirection");
+	  shaderProgram.diffuseColorUniform = gl.getUniformLocation(shaderProgram, "diffuseColor");
 	  shaderProgram.specularColorUniform = gl.getUniformLocation(shaderProgram, "specularColor");
 
 	  gl.uniform4fv(shaderProgram.ambientColorUniform, [0.1, 0.1, 0.1,1.0]);
@@ -145,16 +146,16 @@ var Entangled = (function(Entangled) {
     ;
 
      function mvPushMatrix() {
-        var copy = mat4.create();
-        mat4.set(mvMatrix, copy);
-        mvMatrixStack.push(copy);
+	var copy = mat4.create();
+	mat4.set(mvMatrix, copy);
+	mvMatrixStack.push(copy);
     }
 
     function mvPopMatrix() {
-        if (mvMatrixStack.length == 0) {
-            throw "Invalid popMatrix!";
-        }
-        mvMatrix = mvMatrixStack.pop();
+	if (mvMatrixStack.length == 0) {
+	    throw "Invalid popMatrix!";
+	}
+	mvMatrix = mvMatrixStack.pop();
     }
 
 
@@ -169,11 +170,11 @@ var Entangled = (function(Entangled) {
       gl.uniformMatrix3fv(shaderProgram.normalMatrixUniform, false, normalMatrix);
     };
 
-    function render(){
+    client.render = function render(){
       var players = Entangled.players
-        , numObjects = players.length
-        , model
-        , position
+	, numObjects = players.length
+	, model
+	, position
       ;
 
       gl.viewport(0, 0, canvas.width, canvas.height);
@@ -184,17 +185,17 @@ var Entangled = (function(Entangled) {
       //mat4.multiply(mvMatrix,client.currentRot);
       mat4.lookAt(eyePosition
 		  ,[0,0,0]
-      		  ,[0,1,0]
-      		  ,mvMatrix
-      		 );
+		  ,[0,1,0]
+		  ,mvMatrix
+		 );
 
 
       var last_model = {};
 
       //Center where the user is (if define) else use origin
       var self_position = [0,0,0];
-      if(Entangled.players) {
-         self_position = Entangled.players[Entangled.playerID].position;
+      if(Entangled.players.length > 0) {
+	 self_position = Entangled.players[Entangled.playerID].position;
       }
 
       function drawModel(model,position) {
@@ -210,15 +211,15 @@ var Entangled = (function(Entangled) {
 
 	if(last_model != model) {
 	    gl.bindBuffer(gl.ARRAY_BUFFER, model.vertexBuffer);
-            gl.vertexAttribPointer(shaderProgram.vertexPositionAttribute,
+	    gl.vertexAttribPointer(shaderProgram.vertexPositionAttribute,
 				   model.vertexBuffer.itemSize,
 				   gl.FLOAT,
 				   false,
 				   0,
 				   0);
 
-            gl.bindBuffer(gl.ARRAY_BUFFER, model.normalBuffer);
-            gl.vertexAttribPointer(shaderProgram.vertexNormalAttribute,
+	    gl.bindBuffer(gl.ARRAY_BUFFER, model.normalBuffer);
+	    gl.vertexAttribPointer(shaderProgram.vertexNormalAttribute,
 				   model.normalBuffer.itemSize,
 				   gl.FLOAT,
 				   false,
@@ -249,18 +250,6 @@ var Entangled = (function(Entangled) {
 
     }
 
-
-    function renderLoop(){
-      requestAnimFrame(renderLoop);
-      render();
-    };
-
-    /**
-     * Start Rendering loop, uses requestAnimationFrame
-     */
-    client.startRenderingLoop = function() {
-      initShaders(renderLoop);
-    };
 
     return client;
 

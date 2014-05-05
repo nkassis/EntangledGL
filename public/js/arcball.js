@@ -46,7 +46,7 @@ var Entangled = (function(Entangled) {
 
 
       var perp = vec3.create();
-      vec3.cross(savedClickVector,savedDragVector,perp);
+      vec3.cross(savedDragVector,savedClickVector,perp);
 
       if(vec3.length(perp) > Epsilon) {
 	return [perp[0],perp[1],perp[2],vec3.dot(savedClickVector,savedDragVector)];
